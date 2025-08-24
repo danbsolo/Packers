@@ -23,15 +23,25 @@ class Coordinate():
     def get2DMatrixEquivalent(self):
         return (self.y, self.x)
     
+    def distance(self, other):
+        c = self - other
+        return ((c.x ** 2) + (c.y ** 2)) ** 0.5
+    
+    def typeCheck(self, other):
+        if not isinstance(other, Coordinate):
+            raise TypeError("unsupported operand.")
+        
     def __str__(self):
         return f"({self.x}, {self.y})"
     
     def __add__(self, other):
-        if isinstance(other, Coordinate):
-            return Coordinate(self.x + other.x, self.y + other.y)
-        raise TypeError("unsupported operand.")
-    
+        self.typeCheck(other)
+        return Coordinate(self.x + other.x, self.y + other.y)
+        
+    def __sub__(self, other):
+        self.typeCheck(other)
+        return Coordinate(self.x - other.x, self.y - other.y)
+        
     def __eq__(self, other):
-        if isinstance(other, Coordinate):
-            return (self.x == other.x) and (self.y == other.y)
-        raise TypeError("unsupported operand.")
+        self.typeCheck(other)
+        return (self.x == other.x) and (self.y == other.y)

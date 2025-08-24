@@ -1,14 +1,15 @@
 import sys
 from coordinate import Coordinate
 import random
+import math
 
 class PackersGame():
     #BORDER = "#"
-    #POINT = "•"
+    POINT = "•"
     PLAYER = "P"
     ENEMY = "E"
     BLANK = "-"
-    DEAD = "X"
+    DEATH = "X"
     LEFT = "a"
     RIGHT = "d"
     UP = "w"
@@ -97,26 +98,30 @@ class PackersGame():
 
 
     def move(self, cardinalDirection):
-        self.timestep += 1 # TODO: This should be somewhere else, but is okay for now
-        
-        newPlayerCoord = self.playerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
+        # TODO: This timestep increment should be somewhere else, but is okay for now
+        self.timestep += 1
+
+        oldPlayerCoord = self.playerCoord
+        newPlayerCoord = oldPlayerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
 
         if newPlayerCoord not in self.availablePlayerActions():
-            return False # i.e. Don't move as the action is invalid.
+            newPlayerCoord = oldPlayerCoord # i.e. Don't move as the action is invalid.
         
-        self.updateBoard(self.playerCoord, newPlayerCoord, self.PLAYER)
+        self.updateBoard(oldPlayerCoord, newPlayerCoord, self.PLAYER)
         self.playerCoord = newPlayerCoord
 
         # TODO: It's hard-coded that the player is effectively twices as fast as the enemy
         # NOTE: Bug exists in that if a player moves to a space the enemy was just at, their coordinate will show as a blank, even though a player resides there
         if (self.timestep % 2) == 0:
-            newEnemyCoord = self.packAI.selectMove(self.board, self.playerCoord, self.enemyCoord)
+            # Enemy only chases coordination of player one timestep ago, not where they just moved
+            newEnemyCoord = self.packAI.selectMove(self.board, oldPlayerCoord, self.enemyCoord)
             self.updateBoard(self.enemyCoord, newEnemyCoord, self.ENEMY)
             self.enemyCoord = newEnemyCoord
 
         # TODO: Should be somewhere else. Check if game's over.
+        # Check if player's dead
         if self.playerCoord == self.enemyCoord:
-            self.updateSpot(self.playerCoord, PackersGame.DEAD)
+            self.updateSpot(self.playerCoord, PackersGame.DEATH)
             return True
         return False
 
@@ -148,7 +153,22 @@ class PackersAI():
         pass
 
     def selectMove(self, currentBoardState, playerCoord, enemyCoord):
-        return random.choice(PackersGame.availableActionsClassMethod(enemyCoord, self.width, self.height))
+        return self.manhattanDistanceHeuristic(PackersGame.availableActionsClassMethod(enemyCoord, self.width, self.height), 
+                                               playerCoord)
+        #return random.choice(PackersGame.availableActionsClassMethod(enemyCoord, self.width, self.height))
+
+    def manhattanDistanceHeuristic(self, actionableCoordinates, targetCoord):
+        shortestDistance = math.inf
+        shortestDistanceAC = None
+
+        for ac in actionableCoordinates:
+            currentDistance = ac.distance(targetCoord)
+
+            if currentDistance < shortestDistance:
+                shortestDistance = currentDistance
+                shortestDistanceAC = ac
+        
+        return shortestDistanceAC
 
 
 def playTerminal(levelFileName):
