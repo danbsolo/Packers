@@ -8,7 +8,7 @@ class PackersGame():
     PLAYER = "P"
     ENEMY = "E"
     BLANK = "-"
-
+    DEAD = "X"
     LEFT = "a"
     RIGHT = "d"
     UP = "w"
@@ -26,12 +26,14 @@ class PackersGame():
         self.levelFileName = levelFileName
 
         self.playerCoord = None
-        self.enemyCoord = None # for now, only one enemy may exist
+        self.enemyCoord = None # TODO: for now, only one enemy may exist
 
         self.width = None
         self.height = None
         
         self.packAI = None
+
+        self.timestep = 0
 
         self.board = []
         self.createBoard()
@@ -95,6 +97,8 @@ class PackersGame():
 
 
     def move(self, cardinalDirection):
+        self.timestep += 1 # TODO: This should be somewhere else, but is okay for now
+        
         newPlayerCoord = self.playerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
 
         if newPlayerCoord not in self.availablePlayerActions():
@@ -103,25 +107,33 @@ class PackersGame():
         self.updateBoard(self.playerCoord, newPlayerCoord, self.PLAYER)
         self.playerCoord = newPlayerCoord
 
-        newEnemyCoord = self.packAI.selectMove(self.board, self.playerCoord, self.enemyCoord)
-        self.updateBoard(self.enemyCoord, newEnemyCoord, self.ENEMY)
-        self.enemyCoord = newEnemyCoord
+        # TODO: It's hard-coded that the player is effectively twices as fast as the enemy
+        # NOTE: Bug exists in that if a player moves to a space the enemy was just at, their coordinate will show as a blank, even though a player resides there
+        if (self.timestep % 2) == 0:
+            newEnemyCoord = self.packAI.selectMove(self.board, self.playerCoord, self.enemyCoord)
+            self.updateBoard(self.enemyCoord, newEnemyCoord, self.ENEMY)
+            self.enemyCoord = newEnemyCoord
 
-        return True
+        # TODO: Should be somewhere else. Check if game's over.
+        if self.playerCoord == self.enemyCoord:
+            self.updateSpot(self.playerCoord, PackersGame.DEAD)
+            return True
+        return False
 
     def updateBoard(self, oldCoord, newCoord, item):
-        zeroIndex, oneIndex = oldCoord.get2DMatrixEquivalent()
-        self.board[zeroIndex][oneIndex] = self.BLANK
+        self.updateSpot(oldCoord, self.BLANK)
+        self.updateSpot(newCoord, item)
 
-        zeroIndex, oneIndex = newCoord.get2DMatrixEquivalent()
+    def updateSpot(self, coord, item):
+        zeroIndex, oneIndex = coord.get2DMatrixEquivalent()
         self.board[zeroIndex][oneIndex] = item
 
     def displayBoard(self):
+        print()
         for row in self.board:
             for item in row:
                 print(item, end=" ")
             print()
-        print()
 
 
 
@@ -151,6 +163,9 @@ def playTerminal(levelFileName):
         elif playerMove in PackersGame.CARDINAL_DIRECTIONS:
             if pg.move(playerMove):
                 pg.displayBoard()
+                print(">> GAME OVER. YOU LOSE.")
+                return
+            pg.displayBoard()
 
 
 def main():
