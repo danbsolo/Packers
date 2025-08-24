@@ -1,4 +1,6 @@
 import sys
+from coordinate import Coordinate
+
 
 class PackersGame():
     #BORDER = "#"
@@ -13,10 +15,10 @@ class PackersGame():
     DOWN = "s"
     CARDINAL_DIRECTIONS = {LEFT, RIGHT, UP, DOWN}
     CARDINAL_DIRECTION_MODIFIERS = {
-        LEFT: (-1, 0),
-        RIGHT: (1, 0),
-        UP: (0, -1),
-        DOWN: (0, 1)
+        LEFT: Coordinate(-1, 0),
+        RIGHT: Coordinate(1, 0),
+        UP: Coordinate(0, -1),
+        DOWN: Coordinate(0, 1)
     }
 
 
@@ -57,10 +59,10 @@ class PackersGame():
                     
                     match lines[i][j]:
                         case self.PLAYER if not self.playerCoord:  # can only have one player
-                            self.playerCoord = (i, j)
+                            self.playerCoord = Coordinate(j, i)
                             itemToAdd = self.PLAYER
                         case self.ENEMY:
-                            self.enemyCoord = (i, j)
+                            self.enemyCoord = Coordinate(j, i)
                             itemToAdd = self.ENEMY
                         case _:
                             itemToAdd = self.BLANK
@@ -68,43 +70,46 @@ class PackersGame():
                     currentRow.append(itemToAdd)
     
     def availableActions(self, coordinate):
-        x, y = coordinate
-        actions = set()
+        actionableCoordinates = coordinate.getSurroundingCoordinates()
+        actionsToRemove = []
 
-        # can move in the four cardinal directions, assuming there's space
-        for actionableX in (x-1, x+1):
-            if not (0 <= actionableX and actionableX < self.height):
-                continue
-            actions.add((actionableX, y))
+        for ac in actionableCoordinates:
+            x = ac.getX()
+            y = ac.getY()
 
-        for actionableY in (y-1, y+1):
-            if not (0 <= actionableY and actionableY < self.width):
-                continue
-            actions.add((x, actionableY))
+            if not (0 <= x and x < self.width) or not (0 <= y and y < self.height):
+                actionsToRemove.append(ac)
+        
+        for ac in actionsToRemove:
+            actionableCoordinates.remove(ac)
                 
-        return actions
-    
+        return actionableCoordinates
+
+
     def availablePlayerActions(self):
         return self.availableActions(self.playerCoord)
-    
+
 
     def move(self, cardinalDirection):
-        yModifier, xModifier = self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
-        newCoord = (self.playerCoord[0] + xModifier, self.playerCoord[1] + yModifier)
+        newCoord = self.playerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
 
         if newCoord not in self.availablePlayerActions():
             return False # i.e. Don't move.
         
         oldCoord = self.playerCoord
         self.playerCoord = newCoord
-
-        self.board[oldCoord[0]][oldCoord[1]] = self.BLANK
-        self.board[newCoord[0]][newCoord[1]] = self.PLAYER
+        self.updateBoard(oldCoord, newCoord, self.PLAYER)
         
         # TODO: Have AI make a move from here
 
         return True
 
+    def updateBoard(self, oldCoord, newCoord, item):
+        zeroIndex, oneIndex = oldCoord.get2DMatrixEquivalent()
+        self.board[zeroIndex][oneIndex] = self.BLANK
+
+        zeroIndex, oneIndex = newCoord.get2DMatrixEquivalent()
+        self.board[zeroIndex][oneIndex] = item
 
     def displayBoard(self):
         for row in self.board:
@@ -121,16 +126,16 @@ class PackersAI():
 
 def playTerminal(levelFileName):
     pg = PackersGame(levelFileName)
+
     pg.displayBoard()
-    
     while True:
         playerMove = input("Next move?:").lower()
 
         if playerMove == "q":
             break
         elif playerMove in PackersGame.CARDINAL_DIRECTIONS:
-            pg.move(playerMove)
-            pg.displayBoard()
+            if pg.move(playerMove):
+                pg.displayBoard()
 
 
 def main():
