@@ -1,6 +1,6 @@
 import sys
 from coordinate import Coordinate
-
+import random
 
 class PackersGame():
     #BORDER = "#"
@@ -31,16 +31,15 @@ class PackersGame():
         self.width = None
         self.height = None
         
-        self.ai = None
+        self.packAI = None
 
         self.board = []
         self.createBoard()
-    
+        self.initializeAI()
 
-    def trainAI(self):
-        """This is where the AI would get trained on the board.
-        For now, we're just initialized the PackersAI object."""
-        self.ai = PackersAI()
+
+    def initializeAI(self):
+        self.packAI = PackersAI(self.board)
 
 
     def createBoard(self):
@@ -69,15 +68,17 @@ class PackersGame():
 
                     currentRow.append(itemToAdd)
     
-    def availableActions(self, coordinate):
+    @classmethod
+    def availableActionsClassMethod(cls, coordinate, width, height):
         actionableCoordinates = coordinate.getSurroundingCoordinates()
+        # TODO: Add current spot as an available action (i.e. standing still)
         actionsToRemove = []
 
         for ac in actionableCoordinates:
             x = ac.getX()
             y = ac.getY()
 
-            if not (0 <= x and x < self.width) or not (0 <= y and y < self.height):
+            if not (0 <= x and x < width) or not (0 <= y and y < height):
                 actionsToRemove.append(ac)
         
         for ac in actionsToRemove:
@@ -85,22 +86,26 @@ class PackersGame():
                 
         return actionableCoordinates
 
+    def availableActions(self, coordinate):
+        return PackersGame.availableActionsClassMethod(coordinate, self.width, self.height)
 
     def availablePlayerActions(self):
         return self.availableActions(self.playerCoord)
 
 
-    def move(self, cardinalDirection):
-        newCoord = self.playerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
 
-        if newCoord not in self.availablePlayerActions():
-            return False # i.e. Don't move.
+    def move(self, cardinalDirection):
+        newPlayerCoord = self.playerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
+
+        if newPlayerCoord not in self.availablePlayerActions():
+            return False # i.e. Don't move as the action is invalid.
         
-        oldCoord = self.playerCoord
-        self.playerCoord = newCoord
-        self.updateBoard(oldCoord, newCoord, self.PLAYER)
-        
-        # TODO: Have AI make a move from here
+        self.updateBoard(self.playerCoord, newPlayerCoord, self.PLAYER)
+        self.playerCoord = newPlayerCoord
+
+        newEnemyCoord = self.packAI.selectMove(self.board, self.playerCoord, self.enemyCoord)
+        self.updateBoard(self.enemyCoord, newEnemyCoord, self.ENEMY)
+        self.enemyCoord = newEnemyCoord
 
         return True
 
@@ -118,10 +123,20 @@ class PackersGame():
             print()
         print()
 
+
+
 class PackersAI():
-    def __init__(self):
+    def __init__(self, board):
+        self.originalBoard = board
+        self.width = len(board[0])
+        self.height = len(board)
+        self.trainAI()
+
+    def trainAI(self):
         pass
 
+    def selectMove(self, currentBoardState, playerCoord, enemyCoord):
+        return random.choice(PackersGame.availableActionsClassMethod(enemyCoord, self.width, self.height))
 
 
 def playTerminal(levelFileName):
