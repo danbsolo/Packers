@@ -49,7 +49,35 @@ class ManhattanDistanceAI(PackersAI):
 
 class BreadthFirstSearchAI(PackersAI):
     def __init__(self, initialBoard):
-        super().__init__(initialBoard)
+        #super().__init__(initialBoard)
+        raise NotImplementedError
 
     def selectMove(self, currentBoard, targetCoord, startCoord):
         pass
+
+
+class MiniMaxAI(PackersAI):
+    def __init__(self, initialBoard):
+        #super().__init__(initialBoard)
+        raise NotImplementedError
+
+    def selectMove(self, currentBoard, targetCoord, startCoord):
+        pass
+
+
+class MachineLearningAI(PackersAI):
+    def __init__(self, initialBoard):
+        #super().__init__(initialBoard)
+        raise NotImplementedError
+
+    def selectMove(self, currentBoard, targetCoord, startCoord):
+        pass
+
+
+PACKER_AI_CLASSES = [
+    RandomAI,
+    ManhattanDistanceAI,
+    BreadthFirstSearchAI,
+    MiniMaxAI,
+    MachineLearningAI
+]
