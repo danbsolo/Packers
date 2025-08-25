@@ -56,6 +56,15 @@ class BreadthFirstSearchAI(PackersAI):
         pass
 
 
+class AStarSearchAI(PackersAI):
+    def __init__(self, initialBoard):
+        #super().__init__(initialBoard)
+        raise NotImplementedError
+
+    def selectMove(self, currentBoard, targetCoord, startCoord):
+        pass
+
+
 class MiniMaxAI(PackersAI):
     def __init__(self, initialBoard):
         #super().__init__(initialBoard)
@@ -65,7 +74,15 @@ class MiniMaxAI(PackersAI):
         pass
 
 
-class MachineLearningAI(PackersAI):
+class QLearningManualAI(PackersAI):
+    def __init__(self, initialBoard):
+        #super().__init__(initialBoard)
+        raise NotImplementedError
+
+    def selectMove(self, currentBoard, targetCoord, startCoord):
+        pass
+
+class QLearningTensorFlowKerasAI(PackersAI):
     def __init__(self, initialBoard):
         #super().__init__(initialBoard)
         raise NotImplementedError
@@ -78,6 +95,8 @@ PACKER_AI_CLASSES = [
     RandomAI,
     ManhattanDistanceAI,
     BreadthFirstSearchAI,
+    AStarSearchAI,
     MiniMaxAI,
-    MachineLearningAI
+    QLearningManualAI,
+    QLearningTensorFlowKerasAI
 ]

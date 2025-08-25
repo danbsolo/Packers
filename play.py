@@ -12,7 +12,7 @@ def playTerminal(levelFileName, selectedAI=None):
         print("Packer AIs:")        
         for i in range(len(PACKER_AI_CLASSES)):
             print(f"\t{i} - {PACKER_AI_CLASSES[i].__name__}")
-        selectedAI = input("Select an AI:")
+        selectedAI = input("Select an AI: ")
 
     # check for proper input
     try: selectedAI = int(selectedAI)
@@ -24,7 +24,7 @@ def playTerminal(levelFileName, selectedAI=None):
 
     pg.displayBoard()
     while True:
-        playerMove = input("Next move?:").lower()
+        playerMove = input("Next move?: ").lower()
 
         if playerMove == "q":
             break
