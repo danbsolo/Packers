@@ -103,7 +103,7 @@ class PackersGame():
 
             # if the action is valid, move. Otherwise, do nothing.
             if newPlayerCoord in self.availablePlayerActions():
-                self.updateBoard(oldPlayerCoord, newPlayerCoord, PackersGame.PLAYER)
+                self.updateBoardPlayerMove(oldPlayerCoord, newPlayerCoord, PackersGame.PLAYER)
                 self.playerCoordinate = newPlayerCoord
 
         # enemyTimestepMove determines how often the enemy gets to move
@@ -115,7 +115,7 @@ class PackersGame():
 
             # Enemy only chases coordination of player one timestep ago, not where they just moved
             newEnemyCoord = self.packersAI.selectMove(self.board, oldPlayerCoord, self.enemyCoordinate)
-            self.updateBoard(self.enemyCoordinate, newEnemyCoord, self.ENEMY)
+            self.updateBoardEnemyMove(self.enemyCoordinate, newEnemyCoord, self.ENEMY)
             self.enemyCoordinate = newEnemyCoord
 
     def isPlayerDead(self):
@@ -139,8 +139,15 @@ class PackersGame():
             
         return None # explicitly return None if game is ongoing
 
-    def updateBoard(self, oldCoord, newCoord, item):
+    def updateBoardPlayerMove(self, oldCoord, newCoord, item):
         self.updateSpot(oldCoord, PackersGame.BLANK)
+        self.updateSpot(newCoord, item)
+
+    def updateBoardEnemyMove(self, oldCoord, newCoord, item):
+        if oldCoord in self.pointCoordinates:
+            self.updateSpot(oldCoord, PackersGame.POINT)
+        else:
+            self.updateSpot(oldCoord, PackersGame.BLANK)
         self.updateSpot(newCoord, item)
 
     def updateSpot(self, coord, item):
