@@ -1,6 +1,6 @@
 # Packers
 
-Creating a PAC-MAN-inspired game that will utilize multiple kinds of AIs, most notable of which will be reinforcement learning via a *Deep Q-Network* using the ```TensorFlow/Keras``` library.
+Creating a PAC-MAN-inspired game that will utilize multiple types of AI models, most notable of which will be reinforcement learning via a *Deep Q-Network* using the ```TensorFlow/Keras``` library.
 
 ![Screenshot of terminal's AI selection menu.](assets/terminalSelectAI.JPG)
 
