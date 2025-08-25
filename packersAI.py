@@ -45,3 +45,11 @@ class ManhattanDistanceAI(PackersAI):
                 shortestDistanceACs.append(ac)
 
         return random.choice(shortestDistanceACs)
+
+
+class BreadthFirstSearchAI(PackersAI):
+    def __init__(self, initialBoard):
+        super().__init__(initialBoard)
+
+    def selectMove(self, currentBoard, targetCoord, startCoord):
+        pass
