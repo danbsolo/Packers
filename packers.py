@@ -97,8 +97,9 @@ class PackersGame():
         return self.gameOver()
 
     def move(self, cardinalDirection):
+        oldPlayerCoord = self.playerCoordinate
+        
         if cardinalDirection in PackersGame.CARDINAL_DIRECTIONS:
-            oldPlayerCoord = self.playerCoordinate
             newPlayerCoord = oldPlayerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
 
             # if the action is valid, move. Otherwise, do nothing.
