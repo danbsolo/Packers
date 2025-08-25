@@ -1,7 +1,7 @@
 from coordinate import Coordinate
 
 class PackersGame():
-    #BORDER = "#"
+    BORDER = "#"
     POINT = "o"
     PLAYER = "P"
     ENEMY = "E"
@@ -25,6 +25,7 @@ class PackersGame():
         self.playerCoordinate = None
         self.enemyCoordinate = None # TODO: for now, only one enemy may exist
         self.pointCoordinates = []
+        self.borderCoordinates = []
         # self.width = None
         # self.height = None
         # self.packersAI = None
@@ -58,13 +59,19 @@ class PackersGame():
                         case PackersGame.POINT:
                             self.pointCoordinates.append(Coordinate(j, i))
                             itemToAdd = PackersGame.POINT
+                        case PackersGame.BORDER:
+                            self.borderCoordinates.append(Coordinate(j, i))
+                            itemToAdd = PackersGame.BORDER
                         case _:
                             itemToAdd = PackersGame.BLANK
 
                     currentRow.append(itemToAdd)
-    
-    @staticmethod
-    def availableActions(coordinate, width, height):
+
+    @classmethod
+    def availableActions(cls, board, coordinate):
+        width = len(board[0])
+        height = len(board)
+
         actionableCoordinates = coordinate.getCoordinatesInProximity()
         actionsToRemove = []
 
@@ -72,7 +79,8 @@ class PackersGame():
             x = ac.getX()
             y = ac.getY()
 
-            if not (0 <= x and x < width) or not (0 <= y and y < height):
+            # NOTE: this last clause here is bad encapsulation. This whole method is bad encapsulation.
+            if not (0 <= x and x < width) or not (0 <= y and y < height) or (board[y][x] == PackersGame.BORDER):
                 actionsToRemove.append(ac)
         
         for ac in actionsToRemove:
@@ -81,7 +89,7 @@ class PackersGame():
         return actionableCoordinates
 
     def availablePlayerActions(self):
-        return self.availableActions(self.playerCoordinate, self.width, self.height)
+        return self.availableActions(self.board, self.playerCoordinate)
     
     def incrementTimestep(self, cardinalDirection):
         self.timestep += 1
@@ -106,7 +114,7 @@ class PackersGame():
                 return
 
             # Enemy only chases coordination of player one timestep ago, not where they just moved
-            newEnemyCoord = self.packersAI.selectMove(oldPlayerCoord, self.enemyCoordinate)
+            newEnemyCoord = self.packersAI.selectMove(self.board, oldPlayerCoord, self.enemyCoordinate)
             self.updateBoard(self.enemyCoordinate, newEnemyCoord, self.ENEMY)
             self.enemyCoordinate = newEnemyCoord
 
