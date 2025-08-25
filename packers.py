@@ -1,7 +1,4 @@
-import sys
 from coordinate import Coordinate
-import random
-import math
 
 class PackersGame():
     #BORDER = "#"
@@ -32,18 +29,15 @@ class PackersGame():
         self.width = None
         self.height = None
         
-        self.packAI = None
+        self.packersAI = None
 
         self.timestep = 0
 
         self.board = []
         self.createBoard()
-        self.initializeAI()
 
-
-    def initializeAI(self):
-        self.packAI = PackersAI(self.board)
-
+    def setAI(self, packersAI):
+        self.packersAI = packersAI
 
     def createBoard(self):
         with open(self.levelFileName) as f:
@@ -114,7 +108,7 @@ class PackersGame():
         # NOTE: Bug exists in that if a player moves to a space the enemy was just at, their coordinate will show as a blank, even though a player resides there
         if (self.timestep % 2) == 0:
             # Enemy only chases coordination of player one timestep ago, not where they just moved
-            newEnemyCoord = self.packAI.selectMove(self.board, oldPlayerCoord, self.enemyCoord)
+            newEnemyCoord = self.packersAI.selectMove(oldPlayerCoord, self.enemyCoord)
             self.updateBoard(self.enemyCoord, newEnemyCoord, self.ENEMY)
             self.enemyCoord = newEnemyCoord
 
@@ -139,59 +133,3 @@ class PackersGame():
             for item in row:
                 print(item, end=" ")
             print()
-
-
-
-class PackersAI():
-    def __init__(self, board):
-        self.originalBoard = board
-        self.width = len(board[0])
-        self.height = len(board)
-        self.trainAI()
-
-    def trainAI(self):
-        pass
-
-    def selectMove(self, currentBoardState, playerCoord, enemyCoord):
-        return self.manhattanDistanceHeuristic(PackersGame.availableActionsClassMethod(enemyCoord, self.width, self.height), 
-                                               playerCoord)
-        #return random.choice(PackersGame.availableActionsClassMethod(enemyCoord, self.width, self.height))
-
-    def manhattanDistanceHeuristic(self, actionableCoordinates, targetCoord):
-        shortestDistance = math.inf
-        shortestDistanceAC = None
-
-        for ac in actionableCoordinates:
-            currentDistance = ac.distance(targetCoord)
-
-            if currentDistance < shortestDistance:
-                shortestDistance = currentDistance
-                shortestDistanceAC = ac
-        
-        return shortestDistanceAC
-
-
-def playTerminal(levelFileName):
-    pg = PackersGame(levelFileName)
-
-    pg.displayBoard()
-    while True:
-        playerMove = input("Next move?:").lower()
-
-        if playerMove == "q":
-            break
-        elif playerMove in PackersGame.CARDINAL_DIRECTIONS:
-            if pg.move(playerMove):
-                pg.displayBoard()
-                print(">> GAME OVER. YOU LOSE.")
-                return
-            pg.displayBoard()
-
-
-def main():
-    if len(sys.argv) != 2:
-        sys.exit("Usage: python packers.py <<filepath>>")
-    playTerminal(sys.argv[1])
-
-if __name__ == "__main__":
-    main()
