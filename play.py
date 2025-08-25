@@ -5,7 +5,7 @@ from packersAI import *
 
 def playTerminal(levelFileName):
     pg = PackersGame(levelFileName)
-    pgAI = RandomAI(pg.board)  # change AI here
+    pgAI = ManhattanDistanceAI(pg.board)  # change AI here
     pg.setAI(pgAI)
 
     pg.displayBoard()
@@ -15,9 +15,13 @@ def playTerminal(levelFileName):
         if playerMove == "q":
             break
         elif playerMove in PackersGame.CARDINAL_DIRECTIONS:
-            if pg.move(playerMove):
+            if (gameStatus := pg.move(playerMove)) is not None:
                 pg.displayBoard()
-                print(">> GAME OVER. YOU LOSE.")
+                
+                if gameStatus:
+                    print(">> YOU WIN. CONGRATS.")
+                else:
+                    print(">> YOU LOSE. GAME OVER.")
                 return
             pg.displayBoard()
 

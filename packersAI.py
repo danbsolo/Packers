@@ -6,25 +6,25 @@ from abc import ABC, abstractmethod
 
 class PackersAI(ABC):
     def __init__(self, board):
-        self.originalBoard = board
-        self.width = len(board[0])
-        self.height = len(board)
+        self.board = board
+        self.width = len(self.board[0])
+        self.height = len(self.board)
         self.trainAI()
 
     def trainAI(self):
-        return
+        pass
 
     @abstractmethod
     def selectMove(self, targetCoord, startCoord):
-        return
+        pass
 
 
 class RandomAI(PackersAI):
     def __init__(self, board):
         super().__init__(board)
 
-    def selectMove(self, targetCoord, startCoord):
-        return random.choice(PackersGame.availableActionsClassMethod(startCoord, self.width, self.height))
+    def selectMove(self, _, startCoord):
+        return random.choice(PackersGame.availableActions(startCoord, self.width, self.height))
 
 
 class ManhattanDistanceAI(PackersAI):
@@ -32,10 +32,11 @@ class ManhattanDistanceAI(PackersAI):
         super().__init__(board)
 
     def selectMove(self, targetCoord, startCoord):
-        actionableCoordinates = PackersGame.availableActionsClassMethod(startCoord, self.width, self.height)
+        actionableCoordinates = PackersGame.availableActions(startCoord, self.width, self.height)
         shortestDistance = math.inf
         shortestDistanceAC = None
 
+        # TODO: Pick a random action from the best ones, if there are multiple ones with shortest distance
         for ac in actionableCoordinates:
             currentDistance = ac.distance(targetCoord)
 

@@ -6,8 +6,9 @@ class Coordinate():
         self.x = x
         self.y = y
 
-    def getSurroundingCoordinates(self):
+    def getCoordinatesInProximity(self):
         return [
+            Coordinate(self.x, self.y),
             Coordinate(self.x-1, self.y),
             Coordinate(self.x+1, self.y),
             Coordinate(self.x, self.y-1),
@@ -27,6 +28,7 @@ class Coordinate():
         c = self - other
         return ((c.x ** 2) + (c.y ** 2)) ** 0.5
     
+    ### SPECIAL METHODS ###
     def typeCheck(self, other):
         if not isinstance(other, Coordinate):
             raise TypeError("unsupported operand.")
@@ -37,6 +39,12 @@ class Coordinate():
     def __add__(self, other):
         self.typeCheck(other)
         return Coordinate(self.x + other.x, self.y + other.y)
+    
+    # def __iadd__(self, other):
+    #     self.typeCheck(other)
+    #     self.x += other.x
+    #     self.y += other.y
+    #     return self
         
     def __sub__(self, other):
         self.typeCheck(other)

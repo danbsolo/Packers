@@ -2,7 +2,7 @@ from coordinate import Coordinate
 
 class PackersGame():
     #BORDER = "#"
-    POINT = "•"
+    POINT = "o"
     PLAYER = "P"
     ENEMY = "E"
     BLANK = "-"
@@ -21,29 +21,23 @@ class PackersGame():
 
 
     def __init__(self, levelFileName):
-        self.levelFileName = levelFileName
-
-        self.playerCoord = None
-        self.enemyCoord = None # TODO: for now, only one enemy may exist
-
-        self.width = None
-        self.height = None
-        
-        self.packersAI = None
-
+        self.playerCoordinate = None
+        self.enemyCoordinate = None # TODO: for now, only one enemy may exist
+        self.pointCoordinates = []
+        # self.width = None
+        # self.height = None
+        # self.packersAI = None
         self.timestep = 0
-
         self.board = []
-        self.createBoard()
+        self.initializeState(levelFileName)
 
     def setAI(self, packersAI):
         self.packersAI = packersAI
 
-    def createBoard(self):
-        with open(self.levelFileName) as f:
+    def initializeState(self, levelFileName):
+        with open(levelFileName) as f:
             lines = f.readlines()
-            # assume all rows are the same length as the first
-            self.width = len(lines[0].rstrip())
+            self.width = len(lines[0].rstrip())  # assume all rows are the same length as the first
             self.height = len(lines)
 
             for i in range(len(lines)):
@@ -54,21 +48,23 @@ class PackersGame():
                     itemToAdd = None
                     
                     match lines[i][j]:
-                        case self.PLAYER if not self.playerCoord:  # can only have one player
-                            self.playerCoord = Coordinate(j, i)
-                            itemToAdd = self.PLAYER
-                        case self.ENEMY:
-                            self.enemyCoord = Coordinate(j, i)
-                            itemToAdd = self.ENEMY
+                        case PackersGame.PLAYER if not self.playerCoordinate:  # can only have one player
+                            self.playerCoordinate = Coordinate(j, i)
+                            itemToAdd = PackersGame.PLAYER
+                        case PackersGame.ENEMY if not self.enemyCoordinate:  # TODO: can only have one enemy for now
+                            self.enemyCoordinate = Coordinate(j, i)
+                            itemToAdd = PackersGame.ENEMY
+                        case PackersGame.POINT:
+                            self.pointCoordinates.append(Coordinate(j, i))
+                            itemToAdd = PackersGame.POINT
                         case _:
-                            itemToAdd = self.BLANK
+                            itemToAdd = PackersGame.BLANK
 
                     currentRow.append(itemToAdd)
     
-    @classmethod
-    def availableActionsClassMethod(cls, coordinate, width, height):
-        actionableCoordinates = coordinate.getSurroundingCoordinates()
-        # TODO: Add current spot as an available action (i.e. standing still)
+    @staticmethod
+    def availableActions(coordinate, width, height):
+        actionableCoordinates = coordinate.getCoordinatesInProximity()
         actionsToRemove = []
 
         for ac in actionableCoordinates:
@@ -83,44 +79,52 @@ class PackersGame():
                 
         return actionableCoordinates
 
-    def availableActions(self, coordinate):
-        return PackersGame.availableActionsClassMethod(coordinate, self.width, self.height)
-
     def availablePlayerActions(self):
-        return self.availableActions(self.playerCoord)
-
+        return self.availableActions(self.playerCoordinate, self.width, self.height)
 
 
     def move(self, cardinalDirection):
         # TODO: This timestep increment should be somewhere else, but is okay for now
         self.timestep += 1
 
-        oldPlayerCoord = self.playerCoord
+        oldPlayerCoord = self.playerCoordinate
         newPlayerCoord = oldPlayerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
 
         if newPlayerCoord not in self.availablePlayerActions():
             newPlayerCoord = oldPlayerCoord # i.e. Don't move as the action is invalid.
         
-        self.updateBoard(oldPlayerCoord, newPlayerCoord, self.PLAYER)
-        self.playerCoord = newPlayerCoord
+        self.updateBoard(oldPlayerCoord, newPlayerCoord, PackersGame.PLAYER)
+        self.playerCoordinate = newPlayerCoord
 
         # TODO: It's hard-coded that the player is effectively twices as fast as the enemy
         # NOTE: Bug exists in that if a player moves to a space the enemy was just at, their coordinate will show as a blank, even though a player resides there
         if (self.timestep % 2) == 0:
             # Enemy only chases coordination of player one timestep ago, not where they just moved
-            newEnemyCoord = self.packersAI.selectMove(oldPlayerCoord, self.enemyCoord)
-            self.updateBoard(self.enemyCoord, newEnemyCoord, self.ENEMY)
-            self.enemyCoord = newEnemyCoord
+            newEnemyCoord = self.packersAI.selectMove(oldPlayerCoord, self.enemyCoordinate)
+            self.updateBoard(self.enemyCoordinate, newEnemyCoord, self.ENEMY)
+            self.enemyCoordinate = newEnemyCoord
 
-        # TODO: Should be somewhere else. Check if game's over.
+        return self.gameOver()
+    
+    def gameOver(self):
         # Check if player's dead
-        if self.playerCoord == self.enemyCoord:
-            self.updateSpot(self.playerCoord, PackersGame.DEATH)
-            return True
-        return False
+        if self.playerCoordinate == self.enemyCoordinate:
+            self.updateSpot(self.playerCoordinate, PackersGame.DEATH)
+            return False
 
+        # Otherwise, check if player got a point
+        if self.playerCoordinate in self.pointCoordinates:
+            self.pointCoordinates.remove(self.playerCoordinate)
+            
+            # Check if player got all points
+            if not self.pointCoordinates:
+                return True
+            
+        return None # explicitly return None if game is ongoing
+
+    # TODO: bug exists in that the old spot will become a blank even if it should be a player, or something
     def updateBoard(self, oldCoord, newCoord, item):
-        self.updateSpot(oldCoord, self.BLANK)
+        self.updateSpot(oldCoord, PackersGame.BLANK)
         self.updateSpot(newCoord, item)
 
     def updateSpot(self, coord, item):
