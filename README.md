@@ -10,7 +10,7 @@ Once I've implemented all of the AIs, I'll implement a more visually appealing G
 
 ## Terminal
 ### Movement
-Input `w`, `a`, `s`, or `d` for up, left down, or right respectively. 
+Input `w`, `a`, `s`, or `d` for up, left, down, or right respectively. 
 
 ### GUI
 | Element | Purpose |
