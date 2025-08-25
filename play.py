@@ -14,16 +14,15 @@ def playTerminal(levelFileName):
 
         if playerMove == "q":
             break
-        elif playerMove in PackersGame.CARDINAL_DIRECTIONS:
-            if (gameStatus := pg.move(playerMove)) is not None:
-                pg.displayBoard()
-                
-                if gameStatus:
-                    print(">> YOU WIN. CONGRATS.")
-                else:
-                    print(">> YOU LOSE. GAME OVER.")
-                return
+        elif (gameStatus := pg.incrementTimestep(playerMove)) is not None:
             pg.displayBoard()
+            
+            if gameStatus:
+                print(">> YOU WIN. CONGRATS.")
+            else:
+                print(">> YOU LOSE. GAME OVER.")
+            return
+        pg.displayBoard()
 
 
 def main():

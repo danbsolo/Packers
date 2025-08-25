@@ -20,7 +20,8 @@ class PackersGame():
     }
 
 
-    def __init__(self, levelFileName):
+    def __init__(self, levelFileName, enemyTimestepMove=2):
+        self.enemyTimestepMove = enemyTimestepMove
         self.playerCoordinate = None
         self.enemyCoordinate = None # TODO: for now, only one enemy may exist
         self.pointCoordinates = []
@@ -81,35 +82,43 @@ class PackersGame():
 
     def availablePlayerActions(self):
         return self.availableActions(self.playerCoordinate, self.width, self.height)
-
+    
+    def incrementTimestep(self, cardinalDirection):
+        self.timestep += 1
+        self.move(cardinalDirection)
+        return self.gameOver()
 
     def move(self, cardinalDirection):
-        # TODO: This timestep increment should be somewhere else, but is okay for now
-        self.timestep += 1
+        if cardinalDirection in PackersGame.CARDINAL_DIRECTIONS:
+            oldPlayerCoord = self.playerCoordinate
+            newPlayerCoord = oldPlayerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
 
-        oldPlayerCoord = self.playerCoordinate
-        newPlayerCoord = oldPlayerCoord + self.CARDINAL_DIRECTION_MODIFIERS[cardinalDirection]
+            # if the action is valid, move. Otherwise, do nothing.
+            if newPlayerCoord in self.availablePlayerActions():
+                self.updateBoard(oldPlayerCoord, newPlayerCoord, PackersGame.PLAYER)
+                self.playerCoordinate = newPlayerCoord
 
-        if newPlayerCoord not in self.availablePlayerActions():
-            newPlayerCoord = oldPlayerCoord # i.e. Don't move as the action is invalid.
-        
-        self.updateBoard(oldPlayerCoord, newPlayerCoord, PackersGame.PLAYER)
-        self.playerCoordinate = newPlayerCoord
+        # enemyTimestepMove determines how often the enemy gets to move
+        if (self.timestep % self.enemyTimestepMove) == 0:
 
-        # TODO: It's hard-coded that the player is effectively twices as fast as the enemy
-        # NOTE: Bug exists in that if a player moves to a space the enemy was just at, their coordinate will show as a blank, even though a player resides there
-        if (self.timestep % 2) == 0:
+            # first, check if player went on this space
+            if self.isPlayerDead():
+                return
+
             # Enemy only chases coordination of player one timestep ago, not where they just moved
             newEnemyCoord = self.packersAI.selectMove(oldPlayerCoord, self.enemyCoordinate)
             self.updateBoard(self.enemyCoordinate, newEnemyCoord, self.ENEMY)
             self.enemyCoordinate = newEnemyCoord
 
-        return self.gameOver()
-    
-    def gameOver(self):
-        # Check if player's dead
+    def isPlayerDead(self):
         if self.playerCoordinate == self.enemyCoordinate:
             self.updateSpot(self.playerCoordinate, PackersGame.DEATH)
+            return True
+        return False
+
+    def gameOver(self):
+        # Check if player's dead
+        if self.isPlayerDead():
             return False
 
         # Otherwise, check if player got a point
@@ -122,7 +131,6 @@ class PackersGame():
             
         return None # explicitly return None if game is ongoing
 
-    # TODO: bug exists in that the old spot will become a blank even if it should be a player, or something
     def updateBoard(self, oldCoord, newCoord, item):
         self.updateSpot(oldCoord, PackersGame.BLANK)
         self.updateSpot(newCoord, item)
