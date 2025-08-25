@@ -21,4 +21,4 @@ Input `w`, `a`, `s`, or `d` for up, left down, or right respectively.
 | # | Border (untraversable). |
 | o | Point. |
 
-![Screenshot of terminal's AI board.](assets/terminalBoard.JPG.JPG)
+![Screenshot of terminal's AI board.](assets/terminalBoard.JPG)
