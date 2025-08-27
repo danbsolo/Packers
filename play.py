@@ -1,6 +1,6 @@
 import sys
 from packers import PackersGame
-from packersAI import *
+import aiModels
 
 
 
@@ -10,16 +10,16 @@ def playTerminal(levelFileName, selectedAI=None):
     # if command-line argument was not specified, ask for one
     if not selectedAI:
         print("Packer AIs:")        
-        for i in range(len(PACKER_AI_CLASSES)):
-            print(f"\t{i} - {PACKER_AI_CLASSES[i].__name__}")
+        for i in range(len(aiModels.PACKER_AI_CLASSES)):
+            print(f"\t{i} - {aiModels.PACKER_AI_CLASSES[i].__name__}")
         selectedAI = input("Select an AI: ")
 
     # check for proper input
     try: selectedAI = int(selectedAI)
     except: return  # i.e. Quit
-    if not (0 <= selectedAI and selectedAI < len(PACKER_AI_CLASSES)): return
+    if not (0 <= selectedAI and selectedAI < len(aiModels.PACKER_AI_CLASSES)): return
 
-    pgAI = PACKER_AI_CLASSES[selectedAI](pg.board)  # change AI here
+    pgAI = aiModels.PACKER_AI_CLASSES[selectedAI](pg.board)  # change AI here
     pg.setAI(pgAI)
 
     pg.displayBoard()

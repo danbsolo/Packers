@@ -1,7 +1,5 @@
-import math
-from packers import PackersGame
-import random
-from abc import ABC, abstractmethod
+
+from aiModelsHeader import *
 
 
 class PackersAI(ABC):
@@ -49,11 +47,35 @@ class ManhattanDistanceAI(PackersAI):
 
 class BreadthFirstSearchAI(PackersAI):
     def __init__(self, initialBoard):
-        #super().__init__(initialBoard)
-        raise NotImplementedError
+        super().__init__(initialBoard)
 
     def selectMove(self, currentBoard, targetCoord, startCoord):
-        pass
+        startNode = Node(parent=None, action=startCoord)
+        frontier = QueueFrontier()
+        frontier.add(startNode)
+        explored = []
+
+        while True:
+            if frontier.empty():
+                return startCoord  # If no path is possible, don't move
+            
+            node = frontier.remove()
+            
+            if node.getAction() == targetCoord:
+                while True:
+                    if node.parent.getAction() == startCoord:
+                        return node.getAction()
+                    elif node.parent is None: # this clause is likely unnecessary
+                        return node.getAction()
+                    else:
+                        node = node.parent
+
+            explored.append(node.getAction())
+
+            for ac in PackersGame.availableActions(currentBoard, node.getAction()):
+                if ac not in explored and not frontier.containsAction(ac):
+                    frontier.add(Node(node, ac))
+
 
 
 class AStarSearchAI(PackersAI):
