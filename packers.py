@@ -24,8 +24,8 @@ class PackersGame():
         self.enemyTimestepMove = enemyTimestepMove
         self.playerCoordinate = None
         self.enemyCoordinate = None # TODO: for now, only one enemy may exist
-        self.pointCoordinates = []
-        self.borderCoordinates = []
+        self.pointCoordinates = set()
+        self.borderCoordinates = set()
         # self.width = None
         # self.height = None
         # self.packersAI = None
@@ -57,10 +57,10 @@ class PackersGame():
                             self.enemyCoordinate = Coordinate(j, i)
                             itemToAdd = PackersGame.ENEMY
                         case PackersGame.POINT:
-                            self.pointCoordinates.append(Coordinate(j, i))
+                            self.pointCoordinates.add(Coordinate(j, i))
                             itemToAdd = PackersGame.POINT
                         case PackersGame.BORDER:
-                            self.borderCoordinates.append(Coordinate(j, i))
+                            self.borderCoordinates.add(Coordinate(j, i))
                             itemToAdd = PackersGame.BORDER
                         case _:
                             itemToAdd = PackersGame.BLANK
@@ -73,7 +73,7 @@ class PackersGame():
         height = len(board)
 
         actionableCoordinates = coordinate.getCoordinatesInProximity()
-        actionsToRemove = []
+        actionsToRemove = set()
 
         for ac in actionableCoordinates:
             x = ac.getX()
@@ -81,7 +81,7 @@ class PackersGame():
 
             # NOTE: this last clause here is bad encapsulation. This whole method is bad encapsulation.
             if not (0 <= x and x < width) or not (0 <= y and y < height) or (board[y][x] == PackersGame.BORDER):
-                actionsToRemove.append(ac)
+                actionsToRemove.add(ac)
         
         for ac in actionsToRemove:
             actionableCoordinates.remove(ac)
