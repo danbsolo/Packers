@@ -46,11 +46,27 @@ class ManhattanDistanceAI(PackersAI):
 
 
 class SearchAI(PackersAI):
+    def __init__(self, initialBoard):
+        super().__init__(initialBoard)
+        self.lastTargetCoord = None
+        self.lastTargetCoordNode = None
+
     def commenceSearch(self, currentBoard, targetCoord, startCoord, FrontierClass):
         startNode = Node(parent=None, action=startCoord)
         frontier = FrontierClass()
         frontier.add(startNode)
         explored = set()
+
+        if self.lastTargetCoord and self.lastTargetCoord == targetCoord:
+            currentNode = self.lastTargetCoordNode
+
+            while True:
+                if currentNode.parent.getAction() == startCoord:
+                    return currentNode.getAction()
+                else:
+                    currentNode = currentNode.parent
+                    
+        self.lastTargetCoord = targetCoord
 
         while True:
             if frontier.empty():
@@ -59,6 +75,8 @@ class SearchAI(PackersAI):
             currentNode = frontier.remove()
 
             if currentNode.getAction() == targetCoord:
+                self.lastTargetCoordNode = currentNode
+
                 while True:
                     if currentNode.parent.getAction() == startCoord:
                         return currentNode.getAction()
@@ -68,8 +86,11 @@ class SearchAI(PackersAI):
                         currentNode = currentNode.parent
 
             explored.add(currentNode.getAction())
+            
+            actionableCoordinates = list(PackersGame.availableActions(currentBoard, currentNode.getAction()))
+            random.shuffle(actionableCoordinates)
 
-            for ac in PackersGame.availableActions(currentBoard, currentNode.getAction()):
+            for ac in actionableCoordinates:
                 if ac not in explored and not frontier.containsAction(ac):
                     frontier.add(Node(currentNode, ac))
 

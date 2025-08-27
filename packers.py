@@ -85,7 +85,7 @@ class PackersGame():
         
         for ac in actionsToRemove:
             actionableCoordinates.remove(ac)
-                
+        
         return actionableCoordinates
 
     def availablePlayerActions(self):
