@@ -45,36 +45,49 @@ class ManhattanDistanceAI(PackersAI):
         return random.choice(shortestDistanceACs)
 
 
-class BreadthFirstSearchAI(PackersAI):
-    def __init__(self, initialBoard):
-        super().__init__(initialBoard)
-
-    def selectMove(self, currentBoard, targetCoord, startCoord):
+class SearchAI(PackersAI):
+    def commenceSearch(self, currentBoard, targetCoord, startCoord, FrontierClass):
         startNode = Node(parent=None, action=startCoord)
-        frontier = QueueFrontier()
+        frontier = FrontierClass()
         frontier.add(startNode)
-        explored = []
+        explored = set()
 
         while True:
             if frontier.empty():
                 return startCoord  # If no path is possible, don't move
             
-            node = frontier.remove()
-            
-            if node.getAction() == targetCoord:
+            currentNode = frontier.remove()
+
+            if currentNode.getAction() == targetCoord:
                 while True:
-                    if node.parent.getAction() == startCoord:
-                        return node.getAction()
-                    elif node.parent is None: # this clause is likely unnecessary
-                        return node.getAction()
+                    if currentNode.parent.getAction() == startCoord:
+                        return currentNode.getAction()
+                    # elif currentNode.parent is None: # this clause is likely unnecessary
+                    #     return currentNode.getAction()
                     else:
-                        node = node.parent
+                        currentNode = currentNode.parent
 
-            explored.append(node.getAction())
+            explored.add(currentNode.getAction())
 
-            for ac in PackersGame.availableActions(currentBoard, node.getAction()):
+            for ac in PackersGame.availableActions(currentBoard, currentNode.getAction()):
                 if ac not in explored and not frontier.containsAction(ac):
-                    frontier.add(Node(node, ac))
+                    frontier.add(Node(currentNode, ac))
+
+
+class BreadthFirstSearchAI(SearchAI):
+    def __init__(self, initialBoard):
+        super().__init__(initialBoard)
+
+    def selectMove(self, currentBoard, targetCoord, startCoord):
+        return self.commenceSearch(currentBoard, targetCoord, startCoord, QueueFrontier)
+    
+
+class DepthFirstSearchAI(SearchAI):
+    def __init__(self, initialBoard):
+        super().__init__(initialBoard)
+
+    def selectMove(self, currentBoard, targetCoord, startCoord):
+        return self.commenceSearch(currentBoard, targetCoord, startCoord, StackFrontier)
 
 
 
@@ -116,6 +129,7 @@ class QLearningTensorFlowKerasAI(PackersAI):
 PACKER_AI_CLASSES = [
     RandomAI,
     ManhattanDistanceAI,
+    DepthFirstSearchAI,
     BreadthFirstSearchAI,
     AStarSearchAI,
     MiniMaxAI,

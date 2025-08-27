@@ -22,7 +22,8 @@ class QueueFrontier():
     def add(self, node):
         self.frontier.put(node)
 
-    def containsAction(self, action): # imperfect way of checking membership
+    def containsAction(self, action): 
+        # Imperfect way of checking membership because it accesses its structure under-the-hood
         for node in self.frontier.queue:
             if node.getAction() == action:
                 return True
@@ -45,6 +46,12 @@ class StackFrontier(QueueFrontier):
     def add(self, node):
         self.frontier.append(node)
 
+    def containsAction(self, action):
+        for node in self.frontier:
+            if node.getAction() == action:
+                return True
+        return False
+
     def empty(self):
         return len(self.frontier) == 0
 
@@ -52,6 +59,7 @@ class StackFrontier(QueueFrontier):
         if self.empty():
             raise Exception("Empty frontier.")
         else:
+            # or just >>> node = self.frontier.pop()
             node = self.frontier[-1]
             self.frontier = self.frontier[:-1]
             return node
