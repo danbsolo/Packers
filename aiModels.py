@@ -63,10 +63,10 @@ class SearchAI(PackersAI):
             currentNode = self.lastTargetCoordNode
 
             while True:
-                if currentNode.parent.getAction() == startCoord:
+                if currentNode.getParent().getAction() == startCoord:
                     return currentNode.getAction()
                 else:
-                    currentNode = currentNode.parent
+                    currentNode = currentNode.getParent()
 
         self.lastTargetCoord = targetCoord
 
@@ -80,10 +80,10 @@ class SearchAI(PackersAI):
                 self.lastTargetCoordNode = currentNode
 
                 while True:
-                    if currentNode.parent.getAction() == startCoord:
+                    if currentNode.getParent().getAction() == startCoord:
                         return currentNode.getAction()
                     else:
-                        currentNode = currentNode.parent
+                        currentNode = currentNode.getParent()
 
             explored.add(currentNode.getAction())
             

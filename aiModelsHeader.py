@@ -13,6 +13,9 @@ class Node():
 
     def getAction(self):
         return self.action
+    
+    def getParent(self):
+        return self.parent
 
 
 class QueueFrontier():
