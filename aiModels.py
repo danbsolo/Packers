@@ -57,6 +57,8 @@ class SearchAI(PackersAI):
         frontier.add(startNode)
         explored = set()
 
+        # if the player hasn't moved, the lastTargetCoord and current targetCoord will equal
+        # therefore, do not re-search; use what's already been done
         if self.lastTargetCoord and self.lastTargetCoord == targetCoord:
             currentNode = self.lastTargetCoordNode
 
@@ -65,7 +67,7 @@ class SearchAI(PackersAI):
                     return currentNode.getAction()
                 else:
                     currentNode = currentNode.parent
-                    
+
         self.lastTargetCoord = targetCoord
 
         while True:
@@ -80,8 +82,6 @@ class SearchAI(PackersAI):
                 while True:
                     if currentNode.parent.getAction() == startCoord:
                         return currentNode.getAction()
-                    # elif currentNode.parent is None: # this clause is likely unnecessary
-                    #     return currentNode.getAction()
                     else:
                         currentNode = currentNode.parent
 
@@ -109,7 +109,6 @@ class DepthFirstSearchAI(SearchAI):
 
     def selectMove(self, currentBoard, targetCoord, startCoord):
         return self.commenceSearch(currentBoard, targetCoord, startCoord, StackFrontier)
-
 
 
 class AStarSearchAI(PackersAI):

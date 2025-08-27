@@ -156,7 +156,6 @@ class PackersGame():
         self.board[zeroIndex][oneIndex] = item
 
     def displayBoard(self):
-        print()
         for row in self.board:
             for item in row:
                 print(item, end=" ")
