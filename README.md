@@ -8,6 +8,18 @@ Uses some of the foundational Artificial Intelligence & Machine Learning concept
 
 Once I've implemented all of the AIs, I'll implement a more visually appealing GUI, as opposed to just the terminal. Likely  ```tkinter```, and possibly ```Pygame```.
 
+## AI Algorithms
+| Algorithm | IsImplemented | Description |
+| --- | --- | --- |
+| RandomAI | T |  |
+| ManhattanDistanceAI | T |  |
+| DepthFirstSearchAI | T |  |
+| BreadthFirstSearchAI | T |  |
+| AStarSearchAI | F |  |
+| MiniMaxAI | F |  |
+| QLearningManualAI | F |  |
+| QLearningTensorFlowKerasAI | F |  |
+
 ## Terminal
 ### Movement
 Input `w`, `a`, `s`, or `d` for up, left, down, or right respectively. 
