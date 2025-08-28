@@ -74,9 +74,7 @@ class PackersGame():
             x = ac.getX()
             y = ac.getY()
 
-            # NOTE: this last clause here is bad encapsulation. This whole method is bad encapsulation.
-            # TODO: Change this last clause to be more properly encapsulated
-            if not (0 <= x and x < self.width) or not (0 <= y and y < self.height) or (self.board[y][x] == PackersGame.BORDER):
+            if not (0 <= x and x < self.width) or not (0 <= y and y < self.height) or (self.isSpotItem(x, y, PackersGame.BORDER)):
                 actionsToRemove.add(ac)
         
         for ac in actionsToRemove:
@@ -150,6 +148,10 @@ class PackersGame():
     def updateSpot(self, coord, item):
         zeroIndex, oneIndex = coord.get2DMatrixEquivalent()
         self.board[zeroIndex][oneIndex] = item
+
+    def isSpotItem(self, x, y, item):
+        # Tradeoff: Don't want to make a whole new coordinate object just for this check, but it makes the code harder to read.
+        return (self.board[y][x] == item)
 
     def displayBoard(self):
         for row in self.board:
