@@ -89,12 +89,34 @@ class SearchAI(PackersAI):
 
             explored.add(currentNode.getAction())
             
+            # turn set into a list since sets aren't formally ordered
             actionableCoordinates = list(self.game.availableActions(currentNode.getAction()))
+            
+            # randomize order so if multiple items are optimal, one is randomly selected
             random.shuffle(actionableCoordinates)
+
+            # sort in ascending order using the manhattan distance heuristic
+            actionableCoordinates = self.sortActionableCoordinates(actionableCoordinates, targetCoord)
 
             for ac in actionableCoordinates:
                 if ac not in explored and not frontier.containsAction(ac):
                     frontier.add(Node(currentNode, ac))
+
+    @abstractmethod
+    def sortActionableCoordinates(self, actionableCoordinatesList, targetCoord):
+        pass
+
+
+class DepthFirstSearchAI(SearchAI):
+    def __init__(self, game):
+        super().__init__(game)
+
+    def selectMove(self, targetCoord, startCoord):
+        return self.commenceSearch(targetCoord, startCoord, StackFrontier)
+
+    def sortActionableCoordinates(self, actionableCoordinatesList, targetCoord):
+        # Sorts in reverse so the closest coord by distance is prioritized in the stack
+        return sorted(actionableCoordinatesList, key=lambda ac: ac.distance(targetCoord), reverse=True)
 
 
 class BreadthFirstSearchAI(SearchAI):
@@ -104,13 +126,8 @@ class BreadthFirstSearchAI(SearchAI):
     def selectMove(self, targetCoord, startCoord):
         return self.commenceSearch(targetCoord, startCoord, QueueFrontier)
     
-
-class DepthFirstSearchAI(SearchAI):
-    def __init__(self, game):
-        super().__init__(game)
-
-    def selectMove(self, targetCoord, startCoord):
-        return self.commenceSearch(targetCoord, startCoord, StackFrontier)
+    def sortActionableCoordinates(self, actionableCoordinatesList, targetCoord):
+        return sorted(actionableCoordinatesList, key=lambda ac: ac.distance(targetCoord))
 
 
 class AStarSearchAI(PackersAI):
