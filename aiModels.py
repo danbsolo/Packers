@@ -3,32 +3,34 @@ from aiModelsHeader import *
 
 
 class PackersAI(ABC):
-    def __init__(self, initialBoard):
-        self.initialBoard = initialBoard
+    def __init__(self, packersGame):
+        self.game = packersGame
+        self.gameBoard = self.game.board
+        self.game.setAI(self)
         self.trainAI()
 
     def trainAI(self):
         pass
 
     @abstractmethod
-    def selectMove(self, currentBoard, targetCoord, startCoord):
+    def selectMove(self, targetCoord, startCoord):
         pass
 
 
 class RandomAI(PackersAI):
-    def __init__(self, initialBoard):
-        super().__init__(initialBoard)
+    def __init__(self, game):
+        super().__init__(game)
 
-    def selectMove(self, currentBoard, _, startCoord):
-        return random.choice(PackersGame.availableActions(currentBoard, startCoord))
+    def selectMove(self, _, startCoord):
+        return random.choice(self.game.availableActions(startCoord))
 
 
 class ManhattanDistanceAI(PackersAI):
-    def __init__(self, initialBoard):
-        super().__init__(initialBoard)
+    def __init__(self, game):
+        super().__init__(game)
 
-    def selectMove(self, currentBoard, targetCoord, startCoord):
-        actionableCoordinates = PackersGame.availableActions(currentBoard, startCoord)
+    def selectMove(self, targetCoord, startCoord):
+        actionableCoordinates = self.game.availableActions(startCoord)
         shortestDistance = math.inf
         shortestDistanceACs = []
 
@@ -46,19 +48,19 @@ class ManhattanDistanceAI(PackersAI):
 
 
 class SearchAI(PackersAI):
-    def __init__(self, initialBoard):
-        super().__init__(initialBoard)
+    def __init__(self, game):
+        super().__init__(game)
         self.lastTargetCoord = None
         self.lastTargetCoordNode = None
 
-    def commenceSearch(self, currentBoard, targetCoord, startCoord, FrontierClass):
+    def commenceSearch(self, targetCoord, startCoord, FrontierClass):
         startNode = Node(parent=None, action=startCoord)
         frontier = FrontierClass()
         frontier.add(startNode)
         explored = set()
 
-        # if the player hasn't moved, the lastTargetCoord and current targetCoord will equal
-        # therefore, do not re-search; use what's already been done
+        # if the player hasn't moved, the lastTargetCoord and current targetCoord will equal.
+        # therefore, do not re-search. Use what's already been done
         if self.lastTargetCoord and self.lastTargetCoord == targetCoord:
             currentNode = self.lastTargetCoordNode
 
@@ -72,7 +74,7 @@ class SearchAI(PackersAI):
 
         while True:
             if frontier.empty():
-                return startCoord  # If no path is possible, don't move
+                return startCoord  # If no path is possible, stay still
             
             currentNode = frontier.remove()
 
@@ -87,7 +89,7 @@ class SearchAI(PackersAI):
 
             explored.add(currentNode.getAction())
             
-            actionableCoordinates = list(PackersGame.availableActions(currentBoard, currentNode.getAction()))
+            actionableCoordinates = list(self.game.availableActions(currentNode.getAction()))
             random.shuffle(actionableCoordinates)
 
             for ac in actionableCoordinates:
@@ -96,53 +98,53 @@ class SearchAI(PackersAI):
 
 
 class BreadthFirstSearchAI(SearchAI):
-    def __init__(self, initialBoard):
-        super().__init__(initialBoard)
+    def __init__(self, game):
+        super().__init__(game)
 
-    def selectMove(self, currentBoard, targetCoord, startCoord):
-        return self.commenceSearch(currentBoard, targetCoord, startCoord, QueueFrontier)
+    def selectMove(self, targetCoord, startCoord):
+        return self.commenceSearch(targetCoord, startCoord, QueueFrontier)
     
 
 class DepthFirstSearchAI(SearchAI):
-    def __init__(self, initialBoard):
-        super().__init__(initialBoard)
+    def __init__(self, game):
+        super().__init__(game)
 
-    def selectMove(self, currentBoard, targetCoord, startCoord):
-        return self.commenceSearch(currentBoard, targetCoord, startCoord, StackFrontier)
+    def selectMove(self, targetCoord, startCoord):
+        return self.commenceSearch(targetCoord, startCoord, StackFrontier)
 
 
 class AStarSearchAI(PackersAI):
-    def __init__(self, initialBoard):
-        #super().__init__(initialBoard)
+    def __init__(self, game):
+        #super().__init__(game)
         raise NotImplementedError
 
-    def selectMove(self, currentBoard, targetCoord, startCoord):
+    def selectMove(self, targetCoord, startCoord):
         pass
 
 
 class MiniMaxAI(PackersAI):
-    def __init__(self, initialBoard):
-        #super().__init__(initialBoard)
+    def __init__(self, game):
+        #super().__init__(game)
         raise NotImplementedError
 
-    def selectMove(self, currentBoard, targetCoord, startCoord):
+    def selectMove(self, targetCoord, startCoord):
         pass
 
 
 class QLearningManualAI(PackersAI):
-    def __init__(self, initialBoard):
-        #super().__init__(initialBoard)
+    def __init__(self, game):
+        #super().__init__(game)
         raise NotImplementedError
 
-    def selectMove(self, currentBoard, targetCoord, startCoord):
+    def selectMove(self, targetCoord, startCoord):
         pass
 
 class QLearningTensorFlowKerasAI(PackersAI):
-    def __init__(self, initialBoard):
-        #super().__init__(initialBoard)
+    def __init__(self, game):
+        #super().__init__(game)
         raise NotImplementedError
 
-    def selectMove(self, currentBoard, targetCoord, startCoord):
+    def selectMove(self, targetCoord, startCoord):
         pass
 
 

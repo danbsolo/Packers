@@ -1,4 +1,4 @@
-from packers import PackersGame
+from game import PackersGame
 import math
 import random
 from abc import ABC, abstractmethod

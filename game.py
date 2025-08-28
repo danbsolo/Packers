@@ -28,7 +28,6 @@ class PackersGame():
         self.borderCoordinates = set()
         # self.width = None
         # self.height = None
-        # self.packersAI = None
         self.timestep = 0
         self.board = []
         self.initializeState(levelFileName)
@@ -67,11 +66,7 @@ class PackersGame():
 
                     currentRow.append(itemToAdd)
 
-    @classmethod
-    def availableActions(cls, board, coordinate):
-        width = len(board[0])
-        height = len(board)
-
+    def availableActions(self, coordinate):
         actionableCoordinates = coordinate.getCoordinatesInProximity()
         actionsToRemove = set()
 
@@ -80,7 +75,8 @@ class PackersGame():
             y = ac.getY()
 
             # NOTE: this last clause here is bad encapsulation. This whole method is bad encapsulation.
-            if not (0 <= x and x < width) or not (0 <= y and y < height) or (board[y][x] == PackersGame.BORDER):
+            # TODO: Change this last clause to be more properly encapsulated
+            if not (0 <= x and x < self.width) or not (0 <= y and y < self.height) or (self.board[y][x] == PackersGame.BORDER):
                 actionsToRemove.add(ac)
         
         for ac in actionsToRemove:
@@ -89,7 +85,7 @@ class PackersGame():
         return actionableCoordinates
 
     def availablePlayerActions(self):
-        return self.availableActions(self.board, self.playerCoordinate)
+        return self.availableActions(self.playerCoordinate)
     
     def incrementTimestep(self, cardinalDirection):
         self.timestep += 1
@@ -115,7 +111,7 @@ class PackersGame():
                 return
 
             # Enemy only chases coordination of player one timestep ago, not where they just moved
-            newEnemyCoord = self.packersAI.selectMove(self.board, oldPlayerCoord, self.enemyCoordinate)
+            newEnemyCoord = self.packersAI.selectMove(oldPlayerCoord, self.enemyCoordinate)
             self.updateBoardEnemyMove(self.enemyCoordinate, newEnemyCoord, self.ENEMY)
             self.enemyCoordinate = newEnemyCoord
 

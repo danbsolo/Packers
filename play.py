@@ -1,5 +1,5 @@
 import sys
-from packers import PackersGame
+from game import PackersGame
 import aiModels
 
 
@@ -19,8 +19,7 @@ def playTerminal(levelFileName, selectedAIIndex=None):
     except: return  # i.e. Quit
     if not (0 <= selectedAIIndex and selectedAIIndex < len(aiModels.PACKER_AI_CLASSES)): return
 
-    pgAI = aiModels.PACKER_AI_CLASSES[selectedAIIndex](pg.board)  # change AI here
-    pg.setAI(pgAI)
+    aiModels.PACKER_AI_CLASSES[selectedAIIndex](pg)  # change AI here
 
     print(f"Using {aiModels.PACKER_AI_CLASSES[selectedAIIndex].__name__}")
     pg.displayBoard()
