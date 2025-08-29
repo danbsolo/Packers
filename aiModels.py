@@ -54,9 +54,8 @@ class SearchAI(PackersAI):
         self.lastTargetCoordNode = None
 
     def commenceSearch(self, targetCoord, startCoord, FrontierClass):
-        startNode = Node(parent=None, action=startCoord)
         frontier = FrontierClass()
-        frontier.add(startNode)
+        frontier.add(Node(parent=None, action=startCoord)) # starting node
         explored = set()
 
         # if the player hasn't moved, the lastTargetCoord and current targetCoord will equal.
@@ -130,13 +129,19 @@ class BreadthFirstSearchAI(SearchAI):
         return sorted(actionableCoordinatesList, key=lambda ac: ac.distance(targetCoord))
 
 
+# NOTE: Coding it on its own first so I have a good idea of what's going on
 class AStarSearchAI(PackersAI):
     def __init__(self, game):
         #super().__init__(game)
         raise NotImplementedError
+    
+    # def selectMove(self, targetCoord, startCoord):
+    #     openList = [Node(parent=None, action=startCoord),]
+    #     closedList = []
+    #     fValues = [startCoord.distance(targetCoord),]
 
-    def selectMove(self, targetCoord, startCoord):
-        pass
+    #     while openList:
+            
 
 
 class MiniMaxAI(PackersAI):
