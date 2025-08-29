@@ -171,6 +171,7 @@ class QLearningManualAI(PackersAI):
     def selectMove(self, targetCoord, startCoord):
         pass
 
+
 class QLearningTensorFlowKerasAI(PackersAI):
     def __init__(self, game):
         #super().__init__(game)
