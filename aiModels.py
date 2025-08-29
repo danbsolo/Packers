@@ -60,6 +60,8 @@ class SearchAI(PackersAI):
             else:
                 node = node.getParent()
 
+    
+
 class FirstSearchAI(SearchAI):
     def commenceSearch(self, targetCoord, startCoord, FrontierClass):
         frontier = FrontierClass()
@@ -69,9 +71,7 @@ class FirstSearchAI(SearchAI):
         # if the player hasn't moved, the lastTargetCoord and current targetCoord will equal.
         # therefore, do not re-search. Use what's already been done
         if self.lastTargetCoord and self.lastTargetCoord == targetCoord:
-            currentNode = self.lastTargetCoordNode
-            return self.getNextAction(currentNode, startCoord)
-
+            return self.getNextAction(self.lastTargetCoordNode, startCoord)
         self.lastTargetCoord = targetCoord
 
         while True:
@@ -125,6 +125,10 @@ class AStarSearchAI(SearchAI):
     def selectMove(self, targetCoord, startCoord):
         frontier = FrontierStar(NodeStar(None, startCoord, 0), targetCoord)
 
+        if self.lastTargetCoord and self.lastTargetCoord == targetCoord:
+            return self.getNextAction(self.lastTargetCoordNode, startCoord)
+        self.lastTargetCoord = targetCoord
+
         while True:
             if frontier.isOpenListEmpty():
                 return startCoord
@@ -133,6 +137,7 @@ class AStarSearchAI(SearchAI):
             currentGValue = currentNodeStar.getGValue() + 1
             
             if currentNodeStar.getAction() == targetCoord:
+                self.lastTargetCoordNode = currentNodeStar
                 return self.getNextAction(currentNodeStar, startCoord)
 
             for ac in list(self.game.availableActions(currentNodeStar.getAction())):
