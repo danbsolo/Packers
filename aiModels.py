@@ -98,7 +98,7 @@ class SearchAI(PackersAI):
             actionableCoordinates = self.sortActionableCoordinates(actionableCoordinates, targetCoord)
 
             for ac in actionableCoordinates:
-                if ac not in explored and not frontier.containsAction(ac):
+                if ac not in explored and not frontier.containsActionableCoordinate(ac):
                     frontier.add(Node(currentNode, ac))
 
     @abstractmethod
@@ -107,9 +107,6 @@ class SearchAI(PackersAI):
 
 
 class DepthFirstSearchAI(SearchAI):
-    def __init__(self, game):
-        super().__init__(game)
-
     def selectMove(self, targetCoord, startCoord):
         return self.commenceSearch(targetCoord, startCoord, StackFrontier)
 
@@ -119,9 +116,6 @@ class DepthFirstSearchAI(SearchAI):
 
 
 class BreadthFirstSearchAI(SearchAI):
-    def __init__(self, game):
-        super().__init__(game)
-
     def selectMove(self, targetCoord, startCoord):
         return self.commenceSearch(targetCoord, startCoord, QueueFrontier)
     
@@ -130,18 +124,40 @@ class BreadthFirstSearchAI(SearchAI):
 
 
 # NOTE: Coding it on its own first so I have a good idea of what's going on
-class AStarSearchAI(PackersAI):
-    def __init__(self, game):
-        #super().__init__(game)
-        raise NotImplementedError
-    
-    # def selectMove(self, targetCoord, startCoord):
-    #     openList = [Node(parent=None, action=startCoord),]
-    #     closedList = []
-    #     fValues = [startCoord.distance(targetCoord),]
+class AStarSearchAI(PackersAI):    
+    def selectMove(self, targetCoord, startCoord):
+        currentGValue = 0
+        NodeStar(None, startCoord, currentGValue)
+        frontier = FrontierStar(NodeStar(None, startCoord, currentGValue), targetCoord)
 
-    #     while openList:
+        while True:
+            # TODO: This is correct, right?
+            if frontier.isOpenListEmpty():
+                return startCoord
             
+            currentNodeStar = frontier.getLowestFValueNodeStar()
+
+            if currentNodeStar.getAction() == targetCoord:
+                while True:
+                    if currentNodeStar.getParent().getAction() == startCoord:
+                        return currentNodeStar.getAction()
+                    else:
+                        currentNodeStar = currentNodeStar.getParent()
+
+            currentGValue += 1
+            for ac in list(self.game.availableActions(currentNodeStar.getAction())):
+                if frontier.closedListContainsActionableCoordinate(ac):
+                    continue
+
+                elif frontier.openListContainsActionableCoordinate(ac):
+                    ns = frontier.getNodeStarWithActionableCoordinateInOpenList(ac)
+                    
+                    if ns.getGValue() > currentGValue:
+                        frontier.updateNodeStar(ns, currentNodeStar, currentGValue)
+                
+                else:
+                    ns = NodeStar(currentNodeStar, ac, currentGValue)
+                    frontier.addNodeStar(ns)
 
 
 class MiniMaxAI(PackersAI):

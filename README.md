@@ -15,7 +15,7 @@ Once I've implemented all of the AIs, I'll implement a more visually appealing G
 | ManhattanDistanceAI | T |  |
 | DepthFirstSearchAI | T |  |
 | BreadthFirstSearchAI | T |  |
-| AStarSearchAI | F |  |
+| AStarSearchAI | T |  |
 | MiniMaxAI | F |  |
 | QLearningManualAI | F |  |
 | QLearningTensorFlowKerasAI | F |  |
