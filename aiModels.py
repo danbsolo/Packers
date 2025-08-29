@@ -1,6 +1,6 @@
 
 from aiModelsHeader import *
-from coordinate import Coordinate # TODO: Remove after
+
 
 class PackersAI(ABC):
     def __init__(self, packersGame):
@@ -60,7 +60,6 @@ class SearchAI(PackersAI):
             else:
                 node = node.getParent()
 
-    
 
 class FirstSearchAI(SearchAI):
     def commenceSearch(self, targetCoord, startCoord, FrontierClass):
