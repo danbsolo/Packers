@@ -1,6 +1,6 @@
 
 from aiModelsHeader import *
-
+from coordinate import Coordinate # TODO: Remove after
 
 class PackersAI(ABC):
     def __init__(self, packersGame):
@@ -53,6 +53,7 @@ class SearchAI(PackersAI):
         self.lastTargetCoord = None
         self.lastTargetCoordNode = None
 
+class FirstSearchAI(SearchAI):
     def commenceSearch(self, targetCoord, startCoord, FrontierClass):
         frontier = FrontierClass()
         frontier.add(Node(parent=None, action=startCoord)) # starting node
@@ -106,7 +107,7 @@ class SearchAI(PackersAI):
         pass
 
 
-class DepthFirstSearchAI(SearchAI):
+class DepthFirstSearchAI(FirstSearchAI):
     def selectMove(self, targetCoord, startCoord):
         return self.commenceSearch(targetCoord, startCoord, StackFrontier)
 
@@ -115,7 +116,7 @@ class DepthFirstSearchAI(SearchAI):
         return sorted(actionableCoordinatesList, key=lambda ac: ac.distance(targetCoord), reverse=True)
 
 
-class BreadthFirstSearchAI(SearchAI):
+class BreadthFirstSearchAI(FirstSearchAI):
     def selectMove(self, targetCoord, startCoord):
         return self.commenceSearch(targetCoord, startCoord, QueueFrontier)
     
@@ -123,20 +124,17 @@ class BreadthFirstSearchAI(SearchAI):
         return sorted(actionableCoordinatesList, key=lambda ac: ac.distance(targetCoord))
 
 
-# NOTE: Coding it on its own first so I have a good idea of what's going on
 class AStarSearchAI(PackersAI):    
     def selectMove(self, targetCoord, startCoord):
-        currentGValue = 0
-        NodeStar(None, startCoord, currentGValue)
-        frontier = FrontierStar(NodeStar(None, startCoord, currentGValue), targetCoord)
+        frontier = FrontierStar(NodeStar(None, startCoord, 0), targetCoord)
 
         while True:
-            # TODO: This is correct, right?
             if frontier.isOpenListEmpty():
                 return startCoord
             
             currentNodeStar = frontier.getLowestFValueNodeStar()
-
+            currentGValue = currentNodeStar.getGValue() + 1
+            
             if currentNodeStar.getAction() == targetCoord:
                 while True:
                     if currentNodeStar.getParent().getAction() == startCoord:
@@ -144,7 +142,6 @@ class AStarSearchAI(PackersAI):
                     else:
                         currentNodeStar = currentNodeStar.getParent()
 
-            currentGValue += 1
             for ac in list(self.game.availableActions(currentNodeStar.getAction())):
                 if frontier.closedListContainsActionableCoordinate(ac):
                     continue
@@ -158,6 +155,10 @@ class AStarSearchAI(PackersAI):
                 else:
                     ns = NodeStar(currentNodeStar, ac, currentGValue)
                     frontier.addNodeStar(ns)
+                    print(f"Adding nodeStar {ns.getAction()} with an fValue of {ns.getFValue()}.")
+                    if ns.getAction() == Coordinate(2, 4):
+                        print(f"{ns.getAction()}: gValue = {ns.getGValue()}. hValue = {ns.getHValue()}")
+
 
 
 class MiniMaxAI(PackersAI):

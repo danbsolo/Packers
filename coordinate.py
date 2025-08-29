@@ -25,10 +25,9 @@ class Coordinate():
         return (self.y, self.x)
     
     def distance(self, other):
-        c = self - other
-        return ((c.x ** 2) + (c.y ** 2)) ** 0.5
+        self.typeCheck(other)
+        return abs(self.x - other.x) + abs(self.y - other.y)
     
-    ### SPECIAL METHODS ###
     def typeCheck(self, other):
         if not isinstance(other, Coordinate):
             raise TypeError("unsupported operand.")

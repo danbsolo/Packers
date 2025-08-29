@@ -16,7 +16,7 @@ class Node():
     
     def getParent(self):
         return self.parent
-    
+
 
 class QueueFrontier():
     def __init__(self):
