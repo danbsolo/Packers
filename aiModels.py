@@ -155,10 +155,6 @@ class AStarSearchAI(PackersAI):
                 else:
                     ns = NodeStar(currentNodeStar, ac, currentGValue)
                     frontier.addNodeStar(ns)
-                    print(f"Adding nodeStar {ns.getAction()} with an fValue of {ns.getFValue()}.")
-                    if ns.getAction() == Coordinate(2, 4):
-                        print(f"{ns.getAction()}: gValue = {ns.getGValue()}. hValue = {ns.getHValue()}")
-
 
 
 class MiniMaxAI(PackersAI):
