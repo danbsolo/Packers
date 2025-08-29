@@ -53,6 +53,13 @@ class SearchAI(PackersAI):
         self.lastTargetCoord = None
         self.lastTargetCoordNode = None
 
+    def getNextAction(self, node, startCoord):
+        while True:
+            if node.getParent().getAction() == startCoord:
+                return node.getAction()
+            else:
+                node = node.getParent()
+
 class FirstSearchAI(SearchAI):
     def commenceSearch(self, targetCoord, startCoord, FrontierClass):
         frontier = FrontierClass()
@@ -63,12 +70,7 @@ class FirstSearchAI(SearchAI):
         # therefore, do not re-search. Use what's already been done
         if self.lastTargetCoord and self.lastTargetCoord == targetCoord:
             currentNode = self.lastTargetCoordNode
-
-            while True:
-                if currentNode.getParent().getAction() == startCoord:
-                    return currentNode.getAction()
-                else:
-                    currentNode = currentNode.getParent()
+            return self.getNextAction(currentNode, startCoord)
 
         self.lastTargetCoord = targetCoord
 
@@ -80,12 +82,7 @@ class FirstSearchAI(SearchAI):
 
             if currentNode.getAction() == targetCoord:
                 self.lastTargetCoordNode = currentNode
-
-                while True:
-                    if currentNode.getParent().getAction() == startCoord:
-                        return currentNode.getAction()
-                    else:
-                        currentNode = currentNode.getParent()
+                return self.getNextAction(currentNode, startCoord)
 
             explored.add(currentNode.getAction())
             
@@ -124,7 +121,7 @@ class BreadthFirstSearchAI(FirstSearchAI):
         return sorted(actionableCoordinatesList, key=lambda ac: ac.distance(targetCoord))
 
 
-class AStarSearchAI(PackersAI):    
+class AStarSearchAI(SearchAI):    
     def selectMove(self, targetCoord, startCoord):
         frontier = FrontierStar(NodeStar(None, startCoord, 0), targetCoord)
 
@@ -136,11 +133,7 @@ class AStarSearchAI(PackersAI):
             currentGValue = currentNodeStar.getGValue() + 1
             
             if currentNodeStar.getAction() == targetCoord:
-                while True:
-                    if currentNodeStar.getParent().getAction() == startCoord:
-                        return currentNodeStar.getAction()
-                    else:
-                        currentNodeStar = currentNodeStar.getParent()
+                return self.getNextAction(currentNodeStar, startCoord)
 
             for ac in list(self.game.availableActions(currentNodeStar.getAction())):
                 if frontier.closedListContainsActionableCoordinate(ac):
